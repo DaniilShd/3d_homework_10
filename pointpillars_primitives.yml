@@ -1,0 +1,123 @@
+dataset:
+  name: primitives
+  dataset_path: # path/to/your/dataset
+  cache_dir: ./logs/cache
+  steps_per_epoch_train: 5000
+
+model:
+  name: PointPillars
+  ckpt_path: # path/to/your/checkpoint
+
+  batcher: "ignore"
+
+  point_cloud_range: [-4, -4, -2, 4, 4, 2]
+  classes: ['background', 'box', 'sphere', 'cylinder', 'torus', 'cone']
+
+  loss:
+    focal:
+      gamma: 2.0
+      alpha: 0.25
+      loss_weight: 1.0
+    smooth_l1:
+      beta: 0.11
+      loss_weight: 2.0
+    cross_entropy:
+      loss_weight: 0.2
+
+  voxelize:
+    max_num_points: 32
+    voxel_size: &vsize
+      [0.1, 0.1, 0.5]        # ----
+    max_voxels: [16000, 40000]  # |
+                                # |
+  voxel_encoder:                # |
+    in_channels: 3              # |
+    feat_channels: [64]         # |
+    voxel_size: *vsize          # |
+                                # |
+  scatter:                      # |
+    in_channels: 64             # |
+    output_shape: [80, 80] # <-----
+
+  backbone:
+    in_channels: 64
+    out_channels: [64, 128, 256]
+    layer_nums: [3, 5, 5]
+    layer_strides: [2, 2, 2]
+
+  neck:
+    in_channels: [64, 128, 256]
+    out_channels: [128, 128, 128]
+    upsample_strides: [1, 2, 4]
+    use_conv_for_no_stride: false
+
+  head:
+    in_channels: 384
+    feat_channels: 384
+    nms_pre: 100
+    score_thr: 0.01
+
+    ranges: 
+      - [-4, -4, -2, 4, 4, 2]   #  background
+      - [-4, -4, -2, 4, 4, 2]   #  box
+      - [-4, -4, -2, 4, 4, 2]   #  sphere
+      - [-4, -4, -2, 4, 4, 2]   #  cylinder
+      - [-4, -4, -2, 4, 4, 2]   #  torus
+      - [-4, -4, -2, 4, 4, 2]   #  cone
+    sizes:
+      - [0.5, 0.5, 0.5]         # background
+      - [1.0, 1.0, 1.0]         # box
+      - [0.8, 0.8, 0.8]         # sphere
+      - [1.5, 1.5, 3.0]        # cylinder
+      - [1.2, 1.2, 1.2]        # torus
+      - [1.0, 1.0, 2.0]        # cone
+    rotations: [0, 1.57]
+    iou_thr:
+      - [0.3, 0.4]             # background
+      - [0.4, 0.6]             # box
+      - [0.4, 0.6]             # sphere
+      - [0.5, 0.7]             # cylinder
+      - [0.4, 0.6]             # torus
+      - [0.4, 0.6]             # cone
+
+  augment:
+    PointShuffle: True
+    ObjectRangeFilter:
+      point_cloud_range: [-4, -4, -2, 4, 4, 2]
+    # ObjectSample:
+    #   min_points_dict:
+    #     Car: 5
+    #     Pedestrian: 10
+    #     Cyclist: 10
+    #   sample_dict:
+    #     Car: 15
+    #     Pedestrian: 10
+    #     Cyclist: 10
+
+
+pipeline:
+  name: ObjectDetection
+  test_compute_metric: true
+  batch_size: 6
+  val_batch_size: 1
+  test_batch_size: 1
+  save_ckpt_freq: 5
+  max_epoch: 100
+  main_log_dir: ./logs
+  train_sum_dir: train_log
+  grad_clip_norm: 2
+
+  optimizer:
+    lr: 0.001
+    betas: [0.95, 0.99]
+    weight_decay: 0.01
+
+  # evaluation properties
+  overlaps: [0.5]
+  similar_classes: {}
+  difficulties: [0, 1, 2]
+  summary:
+    record_for: []
+    max_pts:
+    use_reference: false
+    max_outputs: 1

@@ -1,0 +1,12 @@
+classes:
+  - background
+  - box
+  - sphere
+  - cylinder
+  - torus
+  - cone
+
+semantic_ids: [0, 1, 2, 3, 4, 5]
+cat_ids:      [0, 1, 2, 3, 4, 5]
+
+ignored_label: -1
