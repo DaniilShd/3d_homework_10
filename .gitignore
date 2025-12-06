@@ -1,2 +1,3 @@
 .venv
 /data
+/logs/PointPillars_ScannetPrimitivesDet_torch

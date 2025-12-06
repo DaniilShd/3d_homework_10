@@ -1,12 +1,12 @@
 dataset:
   name: primitives
-  dataset_path: # path/to/your/dataset
+  dataset_path: ./data/scannet_primitives
   cache_dir: ./logs/cache
   steps_per_epoch_train: 5000
 
 model:
   name: PointPillars
-  ckpt_path: # path/to/your/checkpoint
+  ckpt_path: null
 
   batcher: "ignore"
 

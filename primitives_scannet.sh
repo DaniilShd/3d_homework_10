@@ -1,1 +1,1 @@
-python3 generate_scannet_primitives_dataset.py  --output_dir data/scannet_primitives  --num_train 20  --num_val 5   --num_test 5
+python3 generate_scannet_primitives_dataset.py  --output_dir data/scannet_primitives  --num_train 150  --num_val 20   --num_test 20
